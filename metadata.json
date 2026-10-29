@@ -1,0 +1,6 @@
+{
+  "name": "時光方塊課表 | TimeBlock Schedule & Calendar",
+  "description": "專為手機打造的視覺化行事曆與課表，支援常用事情方塊拖曳排程、自動提醒與時間統計。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
