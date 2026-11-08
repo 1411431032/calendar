@@ -105,7 +105,7 @@ export const DEFAULT_TEMPLATES: TimeBlockTemplate[] = [
     colorId: 'indigo',
     iconName: 'Code',
     defaultDuration: 170, // 09:10 - 12:00
-    defaultLocation: '中科大 專業教室',
+    defaultLocation: '2402',
     defaultNotes: '每週一連三節 (9:10-12:00)',
     reminderEnabled: true,
     reminderOffsetMinutes: 10,
@@ -117,7 +117,7 @@ export const DEFAULT_TEMPLATES: TimeBlockTemplate[] = [
     colorId: 'amber',
     iconName: 'Briefcase',
     defaultDuration: 170, // 09:10 - 12:00
-    defaultLocation: '中科大 系館',
+    defaultLocation: '6504',
     defaultNotes: '每週二連三節 (9:10-12:00)',
     reminderEnabled: true,
     reminderOffsetMinutes: 10,
@@ -129,7 +129,7 @@ export const DEFAULT_TEMPLATES: TimeBlockTemplate[] = [
     colorId: 'cyan',
     iconName: 'Calculator',
     defaultDuration: 165, // 13:25 - 16:10
-    defaultLocation: '中科大 教室',
+    defaultLocation: '2402',
     defaultNotes: '每週二 (13:25-16:10)',
     reminderEnabled: true,
     reminderOffsetMinutes: 10,
@@ -141,7 +141,7 @@ export const DEFAULT_TEMPLATES: TimeBlockTemplate[] = [
     colorId: 'emerald',
     iconName: 'Laptop',
     defaultDuration: 165, // 13:25 - 16:10
-    defaultLocation: '資工電腦教室',
+    defaultLocation: '2402',
     defaultNotes: '每週五上機實作 (13:25-16:10)',
     reminderEnabled: true,
     reminderOffsetMinutes: 15,
@@ -153,7 +153,7 @@ export const DEFAULT_TEMPLATES: TimeBlockTemplate[] = [
     colorId: 'rose',
     iconName: 'PenTool',
     defaultDuration: 170, // 09:10 - 12:00
-    defaultLocation: '設計電腦教室',
+    defaultLocation: '2407',
     defaultNotes: '每週五連三節 (9:10-12:00)',
     reminderEnabled: true,
     reminderOffsetMinutes: 10,
@@ -177,7 +177,7 @@ export const DEFAULT_TEMPLATES: TimeBlockTemplate[] = [
     colorId: 'violet',
     iconName: 'BookOpen',
     defaultDuration: 105, // 13:25 - 15:10
-    defaultLocation: '中科大 教室',
+    defaultLocation: '3710',
     defaultNotes: '每週一 (13:25-15:10)',
     reminderEnabled: true,
     reminderOffsetMinutes: 10,
@@ -189,7 +189,7 @@ export const DEFAULT_TEMPLATES: TimeBlockTemplate[] = [
     colorId: 'rose',
     iconName: 'Languages',
     defaultDuration: 110, // 10:10 - 12:00
-    defaultLocation: '通識教學館',
+    defaultLocation: '3302',
     defaultNotes: '每週三 (10:10-12:00)',
     reminderEnabled: true,
     reminderOffsetMinutes: 10,
@@ -201,7 +201,7 @@ export const DEFAULT_TEMPLATES: TimeBlockTemplate[] = [
     colorId: 'indigo',
     iconName: 'Languages',
     defaultDuration: 105, // 13:25 - 15:10
-    defaultLocation: '外語教室',
+    defaultLocation: '1403A',
     defaultNotes: '每週三 (13:25-15:10)',
     reminderEnabled: true,
     reminderOffsetMinutes: 10,
@@ -213,7 +213,7 @@ export const DEFAULT_TEMPLATES: TimeBlockTemplate[] = [
     colorId: 'cyan',
     iconName: 'Compass',
     defaultDuration: 105, // 15:20 - 17:05
-    defaultLocation: '科技大樓',
+    defaultLocation: '3302',
     defaultNotes: '每週三 (15:20-17:05)',
     reminderEnabled: true,
     reminderOffsetMinutes: 10,
@@ -225,7 +225,7 @@ export const DEFAULT_TEMPLATES: TimeBlockTemplate[] = [
     colorId: 'fuchsia',
     iconName: 'Sparkles',
     defaultDuration: 105, // 15:20 - 17:05
-    defaultLocation: '班級教室',
+    defaultLocation: '2402',
     defaultNotes: '每週四 (15:20-17:05)',
     reminderEnabled: true,
     reminderOffsetMinutes: 10,
@@ -258,7 +258,7 @@ export const DEFAULT_SCHEDULE_ITEMS: ScheduleItem[] = [
     startTime: '09:10',
     endTime: '12:00',
     durationMinutes: 170,
-    location: '中科大 專業教室',
+    location: '2402',
     notes: '09:10-12:00 (連三節: 9:10-10:00, 10:10-11:00, 11:10-12:00)',
     isRecurringWeekly: true,
     reminderEnabled: true,
@@ -275,7 +275,7 @@ export const DEFAULT_SCHEDULE_ITEMS: ScheduleItem[] = [
     startTime: '13:25',
     endTime: '15:10',
     durationMinutes: 105,
-    location: '中科大 教室',
+    location: '3710',
     notes: '13:25-15:10 (連兩節: 13:25-14:15, 14:20-15:10)',
     isRecurringWeekly: true,
     reminderEnabled: true,
@@ -311,7 +311,7 @@ export const DEFAULT_SCHEDULE_ITEMS: ScheduleItem[] = [
     startTime: '09:10',
     endTime: '12:00',
     durationMinutes: 170,
-    location: '中科大 系館',
+    location: '6504',
     notes: '09:10-12:00 (連三節: 9:10-10:00, 10:10-11:00, 11:10-12:00)',
     isRecurringWeekly: true,
     reminderEnabled: true,
@@ -328,7 +328,7 @@ export const DEFAULT_SCHEDULE_ITEMS: ScheduleItem[] = [
     startTime: '13:25',
     endTime: '16:10',
     durationMinutes: 165,
-    location: '中科大 教室',
+    location: '2402',
     notes: '13:25-16:10 (連三節: 13:25-14:15, 14:20-15:10, 15:20-16:10)',
     isRecurringWeekly: true,
     reminderEnabled: true,
@@ -347,7 +347,7 @@ export const DEFAULT_SCHEDULE_ITEMS: ScheduleItem[] = [
     startTime: '10:10',
     endTime: '12:00',
     durationMinutes: 110,
-    location: '通識教學館',
+    location: '3302',
     notes: '10:10-12:00 (連兩節: 10:10-11:00, 11:10-12:00)',
     isRecurringWeekly: true,
     reminderEnabled: true,
@@ -364,7 +364,7 @@ export const DEFAULT_SCHEDULE_ITEMS: ScheduleItem[] = [
     startTime: '13:25',
     endTime: '15:10',
     durationMinutes: 105,
-    location: '外語教室',
+    location: '1403A',
     notes: '13:25-15:10 (連兩節: 13:25-14:15, 14:20-15:10)',
     isRecurringWeekly: true,
     reminderEnabled: true,
@@ -381,7 +381,7 @@ export const DEFAULT_SCHEDULE_ITEMS: ScheduleItem[] = [
     startTime: '15:20',
     endTime: '17:05',
     durationMinutes: 105,
-    location: '科技大樓',
+    location: '3302',
     notes: '15:20-17:05 (連兩節: 15:20-16:10, 16:15-17:05)',
     isRecurringWeekly: true,
     reminderEnabled: true,
@@ -400,7 +400,7 @@ export const DEFAULT_SCHEDULE_ITEMS: ScheduleItem[] = [
     startTime: '15:20',
     endTime: '17:05',
     durationMinutes: 105,
-    location: '班級教室',
+    location: '2402',
     notes: '15:20-17:05 (連兩節: 15:20-16:10, 16:15-17:05)',
     isRecurringWeekly: true,
     reminderEnabled: true,
@@ -419,7 +419,7 @@ export const DEFAULT_SCHEDULE_ITEMS: ScheduleItem[] = [
     startTime: '09:10',
     endTime: '12:00',
     durationMinutes: 170,
-    location: '設計電腦教室',
+    location: '2407',
     notes: '09:10-12:00 (連三節: 9:10-10:00, 10:10-11:00, 11:10-12:00)',
     isRecurringWeekly: true,
     reminderEnabled: true,
@@ -436,7 +436,7 @@ export const DEFAULT_SCHEDULE_ITEMS: ScheduleItem[] = [
     startTime: '13:25',
     endTime: '16:10',
     durationMinutes: 165,
-    location: '資工系電腦教室',
+    location: '2402',
     notes: '13:25-16:10 (連三節: 13:25-14:15, 14:20-15:10, 15:20-16:10)',
     isRecurringWeekly: true,
     reminderEnabled: true,
@@ -458,10 +458,10 @@ export const DEFAULT_SETTINGS: UserSettings = {
 };
 
 const STORAGE_KEYS = {
-  TEMPLATES: 'timeblock_templates_ntc_v2',
-  SCHEDULE: 'timeblock_schedule_ntc_v2',
-  SETTINGS: 'timeblock_settings_ntc_v2',
-  READ_NOTIFS: 'timeblock_read_notifications_ntc_v2',
+  TEMPLATES: 'timeblock_templates_ntc_v3',
+  SCHEDULE: 'timeblock_schedule_ntc_v3',
+  SETTINGS: 'timeblock_settings_ntc_v3',
+  READ_NOTIFS: 'timeblock_read_notifications_ntc_v3',
 };
 
 export function loadTemplates(): TimeBlockTemplate[] {
@@ -516,7 +516,7 @@ export function saveSchedule(schedule: ScheduleItem[]) {
 
 export function loadSettings(): UserSettings {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    const data = localStorage.getItem(STORAGE_KEYS.SETTINGS) || localStorage.getItem('timeblock_settings_ntc_v2');
     if (data) {
       return { ...DEFAULT_SETTINGS, ...JSON.parse(data) };
     }
