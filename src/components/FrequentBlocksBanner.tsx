@@ -279,7 +279,7 @@ export const FrequentBlocksBanner: React.FC<FrequentBlocksBannerProps> = ({
       {isOpen && (
         <aside
           aria-label="常用方塊橫幅快捷列"
-          className={`fixed bottom-0 left-0 right-0 z-40 transition-all duration-200 border-t shadow-2xl ${
+          className={`fixed bottom-0 left-0 right-0 z-40 transition-all duration-200 border-t shadow-2xl pb-[env(safe-area-inset-bottom,0px)] ${
             darkMode
               ? 'bg-slate-900/95 border-slate-700/80 text-white backdrop-blur-md'
               : 'bg-white/95 border-slate-200 text-slate-900 backdrop-blur-md shadow-indigo-950/15'
