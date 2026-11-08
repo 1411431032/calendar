@@ -26,7 +26,6 @@ import { playChimeSound, triggerVibration } from './utils/sound';
 
 import { MobileFrame } from './components/MobileFrame';
 import { HeaderBar } from './components/HeaderBar';
-import { CurrentEventBanner } from './components/CurrentEventBanner';
 import { ViewTimetable } from './components/ViewTimetable';
 import { ViewDaily } from './components/ViewDaily';
 import { ViewCalendar } from './components/ViewCalendar';
@@ -301,18 +300,6 @@ export default function App() {
           activePlacementTemplate={activePlacementTemplate}
           onCancelPlacement={() => setActivePlacementTemplate(null)}
           unreadRemindersCount={unreadRemindersCount}
-        />
-
-        {/* Live Active/Upcoming Event Floating Banner */}
-        <CurrentEventBanner
-          scheduleItems={scheduleItems}
-          darkMode={settings.darkMode}
-          onToggleComplete={handleToggleComplete}
-          onSelectItem={(item) => {
-            setEditorMode('scheduleItem');
-            setEditingItem(item);
-            setIsEditorOpen(true);
-          }}
         />
 
         {/* Main Content Area: Responsive Layout */}
