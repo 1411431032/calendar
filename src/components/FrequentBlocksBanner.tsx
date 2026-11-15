@@ -41,8 +41,14 @@ export const FrequentBlocksBanner: React.FC<FrequentBlocksBannerProps> = ({
   onOpenCreateTemplate,
   darkMode = false,
 }) => {
-  // Whether the horizontal banner dock is open (default true so user sees both timetable and banner)
-  const [isOpen, setIsOpen] = useState(true);
+  // On mobile screens (< 768px), default to collapsed so the entire 8:00 - 22:00 timetable fits on the screen!
+  // The user can tap the floating "常用方塊" button at bottom-right anytime to expand or tap the 常用方塊 tab.
+  const [isOpen, setIsOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768;
+    }
+    return false;
+  });
 
   // Filter templates that the user has chosen to pin to the frequent tray
   const pinnedTemplates = templates.filter((t) => t.isPinnedToFab !== false);

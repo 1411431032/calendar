@@ -80,7 +80,34 @@ export const ViewTimetable: React.FC<ViewTimetableProps> = ({
   const endHour = 22;
   const startHour = 8;
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
-  const HOUR_HEIGHT = 62; // px per hour for comfortable touch targets
+
+  // Full-screen Fit mode: ensures all 8:00 - 22:00 hours fit 100% on screen at once with zero scrolling!
+  const [isFitScreen, setIsFitScreen] = useState<boolean>(true);
+  const [containerHeight, setContainerHeight] = useState<number>(0);
+  const timetableContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!timetableContainerRef.current) return;
+    const updateHeight = () => {
+      if (timetableContainerRef.current) {
+        setContainerHeight(timetableContainerRef.current.clientHeight);
+      }
+    };
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(timetableContainerRef.current);
+    window.addEventListener('resize', updateHeight);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateHeight);
+    };
+  }, []);
+
+  // When isFitScreen is true, dynamically calculate HOUR_HEIGHT so all hours (8:00 to 22:00) fit on screen
+  const computedFitHourHeight = containerHeight > 240
+    ? Math.max(26, Math.floor((containerHeight - 44) / hours.length))
+    : 32;
+  const HOUR_HEIGHT = isFitScreen ? computedFitHourHeight : 60;
 
   // Track recent drag/move finish time to prevent synthesized click from opening slotPicker modal
   const justInteractedRef = useRef<number>(0);
@@ -440,16 +467,25 @@ export const ViewTimetable: React.FC<ViewTimetableProps> = ({
           <span>{isLocked ? '防誤觸鎖定' : '排課調整'}</span>
         </button>
 
-        {/* Right: 5-day / 7-day switcher & 18h/22h range toggle */}
+        {/* Right: Full-screen Fit (8:00-22:00) / Zoom & 5-day / 7-day switcher */}
         <div className="flex items-center gap-1 text-[10px]">
-          <span
-            className={`px-1.5 py-0.5 rounded-md font-medium border text-slate-500 dark:text-slate-400 ${
-              isDark ? 'border-slate-700 bg-slate-800/80' : 'border-slate-200 bg-slate-50'
+          {/* Fit Screen 8:00 - 22:00 toggle */}
+          <button
+            onClick={() => {
+              setIsFitScreen(!isFitScreen);
+              triggerVibration([20]);
+            }}
+            className={`px-1.5 py-0.5 rounded-md font-bold border transition ${
+              isFitScreen
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+                : isDark
+                ? 'bg-slate-800 text-slate-300 border-slate-700'
+                : 'bg-slate-100 text-slate-700 border-slate-200'
             }`}
-            title="課表時間固定顯示至 22:00"
+            title={isFitScreen ? '目前為：一覽全天 (8:00-22:00 全部一次顯示在畫面上)' : '目前為：放大瀏覽模式'}
           >
-            至 22:00
-          </span>
+            {isFitScreen ? '一覽 8-22h' : '放大瀏覽'}
+          </button>
 
           <div
             className={`flex items-center gap-0.5 p-0.5 rounded-lg border ${
@@ -481,7 +517,12 @@ export const ViewTimetable: React.FC<ViewTimetableProps> = ({
       </div>
 
       {/* Main Timetable: Fixed 100% width, NO HORIZONTAL SCROLL! */}
-      <div className="flex-1 w-full flex flex-col overflow-y-auto overflow-x-hidden relative pb-28">
+      <div
+        ref={timetableContainerRef}
+        className={`flex-1 w-full flex flex-col overflow-x-hidden relative ${
+          isFitScreen ? 'overflow-y-hidden pb-1' : 'overflow-y-auto pb-28'
+        }`}
+      >
         {/* Sticky Day Column Headers across top */}
         <div
           className={`grid w-full border-b sticky top-0 z-20 backdrop-blur-md shadow-2xs ${
@@ -670,8 +711,8 @@ export const ViewTimetable: React.FC<ViewTimetableProps> = ({
                           >
                             {effectiveStartTime}-{calculateEndTime(effectiveStartTime, effectiveDuration)}
                           </div>
-                          {item.location && heightPx > 42 && (
-                            <div className="flex items-center gap-0.5 text-[8px] text-slate-500 truncate mt-0.5">
+                          {item.location && (
+                            <div className="flex items-center gap-0.5 text-[8.5px] font-bold text-rose-600 dark:text-rose-400 truncate mt-0.5">
                               <MapPin className="w-2 h-2 text-rose-500 shrink-0" />
                               <span className="truncate">{item.location}</span>
                             </div>

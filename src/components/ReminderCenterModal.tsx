@@ -39,14 +39,22 @@ export const ReminderCenterModal: React.FC<ReminderCenterModalProps> = ({
   onUpdateSettings,
   notifications,
   onClearNotifications,
+  onOpenIosWidgetModal,
 }) => {
   if (!isOpen) return null;
 
   const isDark = settings.darkMode;
 
-  const [permissionState, setPermissionState] = React.useState<NotificationPermission>(
-    typeof Notification !== 'undefined' ? Notification.permission : 'default'
-  );
+  const [permissionState, setPermissionState] = React.useState<NotificationPermission>(() => {
+    try {
+      if (typeof window !== 'undefined' && 'Notification' in window && typeof Notification !== 'undefined') {
+        return Notification.permission;
+      }
+    } catch {
+      // Safe fallback for iOS WebKit
+    }
+    return 'default';
+  });
 
   const requestBrowserPermission = async () => {
     try {
