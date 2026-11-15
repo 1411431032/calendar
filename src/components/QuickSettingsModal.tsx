@@ -21,6 +21,7 @@ import { UserSettings, ScheduleItem, TimeBlockTemplate } from '../types';
 import {
   exportToICS,
   triggerFileDownload,
+  restoreLegacyUserData,
 } from '../utils/storage';
 import { playChimeSound } from '../utils/sound';
 
@@ -89,6 +90,18 @@ export const QuickSettingsModal: React.FC<QuickSettingsModalProps> = ({
       }
     };
     reader.readAsText(file);
+  };
+
+  const handleRestoreHistorical = () => {
+    const res = restoreLegacyUserData();
+    if (res && (res.schedule.length > 0 || res.templates.length > 0)) {
+      onImportData(res.schedule, res.templates);
+      playChimeSound('success');
+      alert(`已成功為您恢復原本設定的 ${res.schedule.length} 個排程與 ${res.templates.length} 個常用方塊！`);
+      onClose();
+    } else {
+      alert('未在瀏覽器中找到先前的歷史備份資料。');
+    }
   };
 
   return (
@@ -267,6 +280,34 @@ export const QuickSettingsModal: React.FC<QuickSettingsModalProps> = ({
                 />
               </div>
             </div>
+          </div>
+
+          {/* Historical Data Recovery */}
+          <div
+            className={`border rounded-2xl p-3.5 space-y-2 ${
+              isDark
+                ? 'bg-indigo-950/20 border-indigo-800/40'
+                : 'bg-indigo-50/70 border-indigo-200'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  歷史自訂資料還原
+                </span>
+                <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                  若更新後手機原本設定的自訂課表或常用方塊未出現，點此即可一鍵從本機歷史紀錄中恢復！
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleRestoreHistorical}
+              className="w-full py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition active:scale-95"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>一鍵恢復原本手機自訂排程與常用方塊</span>
+            </button>
           </div>
 
           {/* Preset Reset */}

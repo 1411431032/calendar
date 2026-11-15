@@ -464,16 +464,96 @@ const STORAGE_KEYS = {
   READ_NOTIFS: 'timeblock_read_notifications_ntc_v4',
 };
 
+const LOCATION_UPDATES: Record<string, string> = {
+  '資料結構': '2402',
+  '民主憲政與法治': '3710',
+  '民主憲政': '3710',
+  '行銷管理': '6504',
+  '統計學': '2402',
+  '語言與創意學習 (人文領域)': '3302',
+  '語言與創意學習': '3302',
+  '英語聽力與閱讀 (一)': '1403A',
+  '英語聽力與閱讀': '1403A',
+  '英文': '1403A',
+  '衛星導航科技 (自然科學領域)': '3302',
+  '衛星導航科技': '3302',
+  '衛星導航': '3302',
+  '週會/班會': '2402',
+  '週會': '2402',
+  '電腦繪圖': '2407',
+  'JAVA程式設計': '2402',
+  'java': '2402',
+};
+
+function applyLocationFixes<T extends { title: string; location?: string; defaultLocation?: string }>(item: T): T {
+  for (const [key, loc] of Object.entries(LOCATION_UPDATES)) {
+    if (item.title && (item.title.includes(key) || key.includes(item.title))) {
+      if ('location' in item) {
+        (item as any).location = loc;
+      }
+      if ('defaultLocation' in item) {
+        (item as any).defaultLocation = loc;
+      }
+      break;
+    }
+  }
+  return item;
+}
+
 export function loadTemplates(): TimeBlockTemplate[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.TEMPLATES);
-    if (data) {
-      const parsed = JSON.parse(data);
+    const v2Raw = localStorage.getItem('timeblock_templates_ntc_v2');
+    const v3Raw = localStorage.getItem('timeblock_templates_ntc_v3');
+    const v4Raw = localStorage.getItem(STORAGE_KEYS.TEMPLATES);
+    const isRestored = localStorage.getItem('timeblock_templates_restored_to_v4_auto');
+
+    // If user had existing templates in v2/v3 and hasn't restored to v4 yet, auto-restore them!
+    if (!isRestored && (v2Raw || v3Raw)) {
+      const sourceRaw = v2Raw || v3Raw;
+      if (sourceRaw) {
+        const parsed = JSON.parse(sourceRaw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const restored = parsed.map((t: TimeBlockTemplate) => {
+            const fixed = applyLocationFixes(t);
+            return {
+              ...fixed,
+              isPinnedToFab: fixed.isPinnedToFab !== undefined ? fixed.isPinnedToFab : true,
+            };
+          });
+          localStorage.setItem(STORAGE_KEYS.TEMPLATES, JSON.stringify(restored));
+          localStorage.setItem('timeblock_templates_restored_to_v4_auto', 'true');
+          return restored;
+        }
+      }
+    }
+
+    if (v4Raw) {
+      const parsed = JSON.parse(v4Raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.map((t: TimeBlockTemplate) => ({
-          ...t,
-          isPinnedToFab: t.isPinnedToFab !== undefined ? t.isPinnedToFab : true,
-        }));
+        return parsed.map((t: TimeBlockTemplate) => {
+          const fixed = applyLocationFixes(t);
+          return {
+            ...fixed,
+            isPinnedToFab: fixed.isPinnedToFab !== undefined ? fixed.isPinnedToFab : true,
+          };
+        });
+      }
+    }
+
+    // Fallback if v4 is somehow missing but v2/v3 exists
+    if (v2Raw || v3Raw) {
+      const sourceRaw = v2Raw || v3Raw;
+      if (sourceRaw) {
+        const parsed = JSON.parse(sourceRaw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((t: TimeBlockTemplate) => {
+            const fixed = applyLocationFixes(t);
+            return {
+              ...fixed,
+              isPinnedToFab: fixed.isPinnedToFab !== undefined ? fixed.isPinnedToFab : true,
+            };
+          });
+        }
       }
     }
   } catch (e) {
@@ -495,10 +575,40 @@ export function saveTemplates(templates: TimeBlockTemplate[]) {
 
 export function loadSchedule(): ScheduleItem[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.SCHEDULE);
-    if (data) {
-      const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    const v2Raw = localStorage.getItem('timeblock_schedule_ntc_v2');
+    const v3Raw = localStorage.getItem('timeblock_schedule_ntc_v3');
+    const v4Raw = localStorage.getItem(STORAGE_KEYS.SCHEDULE);
+    const isRestored = localStorage.getItem('timeblock_schedule_restored_to_v4_auto');
+
+    // If user had existing schedule in v2/v3 and hasn't restored to v4 yet, auto-restore them!
+    if (!isRestored && (v2Raw || v3Raw)) {
+      const sourceRaw = v2Raw || v3Raw;
+      if (sourceRaw) {
+        const parsed = JSON.parse(sourceRaw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const restored = parsed.map(applyLocationFixes);
+          localStorage.setItem(STORAGE_KEYS.SCHEDULE, JSON.stringify(restored));
+          localStorage.setItem('timeblock_schedule_restored_to_v4_auto', 'true');
+          return restored;
+        }
+      }
+    }
+
+    if (v4Raw) {
+      const parsed = JSON.parse(v4Raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map(applyLocationFixes);
+      }
+    }
+
+    if (v2Raw || v3Raw) {
+      const sourceRaw = v2Raw || v3Raw;
+      if (sourceRaw) {
+        const parsed = JSON.parse(sourceRaw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map(applyLocationFixes);
+        }
+      }
     }
   } catch (e) {
     console.error('Failed to load schedule from localStorage:', e);
@@ -511,6 +621,56 @@ export function saveSchedule(schedule: ScheduleItem[]) {
     localStorage.setItem(STORAGE_KEYS.SCHEDULE, JSON.stringify(schedule));
   } catch (e) {
     console.error('Failed to save schedule:', e);
+  }
+}
+
+/**
+ * Manually restore historical user data from previous versions (v2/v3)
+ */
+export function restoreLegacyUserData(): {
+  schedule: ScheduleItem[];
+  templates: TimeBlockTemplate[];
+} | null {
+  try {
+    const v2Sched = localStorage.getItem('timeblock_schedule_ntc_v2');
+    const v3Sched = localStorage.getItem('timeblock_schedule_ntc_v3');
+    const v2Tpl = localStorage.getItem('timeblock_templates_ntc_v2');
+    const v3Tpl = localStorage.getItem('timeblock_templates_ntc_v3');
+
+    const schedRaw = v2Sched || v3Sched;
+    const tplRaw = v2Tpl || v3Tpl;
+
+    if (!schedRaw && !tplRaw) return null;
+
+    let restoredSchedule: ScheduleItem[] = [];
+    let restoredTemplates: TimeBlockTemplate[] = [];
+
+    if (schedRaw) {
+      const parsed = JSON.parse(schedRaw);
+      if (Array.isArray(parsed)) {
+        restoredSchedule = parsed.map(applyLocationFixes);
+        saveSchedule(restoredSchedule);
+      }
+    }
+
+    if (tplRaw) {
+      const parsed = JSON.parse(tplRaw);
+      if (Array.isArray(parsed)) {
+        restoredTemplates = parsed.map((t: TimeBlockTemplate) => {
+          const f = applyLocationFixes(t);
+          return { ...f, isPinnedToFab: f.isPinnedToFab !== undefined ? f.isPinnedToFab : true };
+        });
+        saveTemplates(restoredTemplates);
+      }
+    }
+
+    localStorage.setItem('timeblock_schedule_restored_to_v4_auto', 'true');
+    localStorage.setItem('timeblock_templates_restored_to_v4_auto', 'true');
+
+    return { schedule: restoredSchedule, templates: restoredTemplates };
+  } catch (e) {
+    console.error('Failed to restore legacy user data:', e);
+    return null;
   }
 }
 
