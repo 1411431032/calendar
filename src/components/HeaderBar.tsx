@@ -32,6 +32,7 @@ interface HeaderBarProps {
   activePlacementTemplate: TimeBlockTemplate | null;
   onCancelPlacement: () => void;
   unreadRemindersCount: number;
+  onOpenIosWidgetModal?: () => void;
 }
 
 export const HeaderBar: React.FC<HeaderBarProps> = ({
@@ -46,6 +47,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   activePlacementTemplate,
   onCancelPlacement,
   unreadRemindersCount,
+  onOpenIosWidgetModal,
 }) => {
   const [now, setNow] = React.useState(new Date());
 
@@ -126,6 +128,22 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           >
             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
+
+          {/* iOS Widget Guide Button */}
+          {onOpenIosWidgetModal && (
+            <button
+              onClick={onOpenIosWidgetModal}
+              className={`p-2 rounded-lg transition active:scale-95 border ${
+                isDark
+                  ? 'bg-slate-800/80 hover:bg-slate-700 text-cyan-400 border-slate-700/60'
+                  : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200'
+              }`}
+              aria-label="iOS 今日概覽小工具"
+              title="iOS 今日概覽小工具與鎖定響鈴"
+            >
+              <Smartphone className="w-4 h-4" />
+            </button>
+          )}
 
           {/* Reminder Center */}
           <button

@@ -76,11 +76,14 @@ export const ViewTimetable: React.FC<ViewTimetableProps> = ({
 
   const isDark = settings.darkMode;
 
-  // Timetable hours range: 8:00 to 18:00 (expandable to 22:00)
-  const [endHour, setEndHour] = useState<number>(18);
+  // Timetable hours range: 固定顯示到 22:00 (8:00 to 22:00)
+  const endHour = 22;
   const startHour = 8;
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
   const HOUR_HEIGHT = 62; // px per hour for comfortable touch targets
+
+  // Track recent drag/move finish time to prevent synthesized click from opening slotPicker modal
+  const justInteractedRef = useRef<number>(0);
 
   // Compute reference date
   const refDate = new Date();
@@ -134,6 +137,7 @@ export const ViewTimetable: React.FC<ViewTimetableProps> = ({
   // Handle pointer down on block for moving (REQUIRES LONG PRESS to avoid misclicks during scrolling)
   const handleBlockPointerDown = (e: React.PointerEvent, item: ScheduleItem) => {
     if (e.button !== 0) return;
+    e.stopPropagation();
     if (isLocked) {
       // In locked mode, do not register drag; just tap to inspect
       return;
@@ -279,6 +283,7 @@ export const ViewTimetable: React.FC<ViewTimetableProps> = ({
       if (touchStartRef.current) {
         const dist = Math.hypot(e.clientX - touchStartRef.current.x, e.clientY - touchStartRef.current.y);
         if (dist <= 8) {
+          justInteractedRef.current = Date.now();
           const tappedItem = touchStartRef.current.item;
           setSelectedItemId((prev) => (prev === tappedItem.id ? null : tappedItem.id));
           triggerVibration([15]);
@@ -290,6 +295,9 @@ export const ViewTimetable: React.FC<ViewTimetableProps> = ({
     setPressingItemId(null);
 
     if (!interactionState) return;
+
+    // Record that we just finished dragging/resizing to prevent column click from popping up slot modal
+    justInteractedRef.current = Date.now();
 
     if (interactionState.type === 'move') {
       const { itemId, currentDayOfWeek, currentStartTime, initialDayOfWeek, initialStartTime } = interactionState;
@@ -322,7 +330,10 @@ export const ViewTimetable: React.FC<ViewTimetableProps> = ({
 
   // Cell click for placing template or opening quick popover
   const handleColumnClick = (e: React.MouseEvent, dayOfWeek: number) => {
-    if (interactionState) return;
+    // Suppress click if dragging or recently finished dragging/tapping within 500ms
+    if (interactionState || Date.now() - justInteractedRef.current < 500) {
+      return;
+    }
 
     const rect = e.currentTarget.getBoundingClientRect();
     const clickY = e.clientY - rect.top;
@@ -334,6 +345,7 @@ export const ViewTimetable: React.FC<ViewTimetableProps> = ({
       onDropTemplateOnSlot(activePlacementTemplate, dayOfWeek, timeStr);
       playChimeSound('drop');
       triggerVibration([50]);
+      justInteractedRef.current = Date.now();
     } else {
       setSlotPicker({ dayOfWeek, startTime: timeStr });
     }
@@ -430,17 +442,14 @@ export const ViewTimetable: React.FC<ViewTimetableProps> = ({
 
         {/* Right: 5-day / 7-day switcher & 18h/22h range toggle */}
         <div className="flex items-center gap-1 text-[10px]">
-          <button
-            onClick={() => setEndHour((prev) => (prev === 18 ? 22 : 18))}
-            className={`px-1.5 py-0.5 rounded-md font-medium border transition ${
-              endHour === 22
-                ? 'bg-indigo-50 text-indigo-700 border-indigo-300 dark:bg-indigo-950 dark:text-indigo-300'
-                : 'text-slate-500 border-transparent hover:border-slate-300'
+          <span
+            className={`px-1.5 py-0.5 rounded-md font-medium border text-slate-500 dark:text-slate-400 ${
+              isDark ? 'border-slate-700 bg-slate-800/80' : 'border-slate-200 bg-slate-50'
             }`}
-            title="切換顯示至 18:00 或 22:00"
+            title="課表時間固定顯示至 22:00"
           >
-            {endHour === 18 ? '至 18:00' : '至 22:00'}
-          </button>
+            至 22:00
+          </span>
 
           <div
             className={`flex items-center gap-0.5 p-0.5 rounded-lg border ${

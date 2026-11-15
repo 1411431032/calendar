@@ -13,10 +13,12 @@ import {
   Clock,
   Moon,
   Trash2,
+  Calendar,
 } from 'lucide-react';
 import { ScheduleItem, UserSettings, ReminderNotification } from '../types';
 import { timeToMinutes } from '../utils/timeUtils';
 import { playChimeSound, triggerVibration } from '../utils/sound';
+import { sendAppNotification, requestNotificationPermission } from '../utils/notification';
 
 interface ReminderCenterModalProps {
   isOpen: boolean;
@@ -26,6 +28,7 @@ interface ReminderCenterModalProps {
   onUpdateSettings: (newSettings: Partial<UserSettings>) => void;
   notifications: ReminderNotification[];
   onClearNotifications: () => void;
+  onOpenIosWidgetModal?: () => void;
 }
 
 export const ReminderCenterModal: React.FC<ReminderCenterModalProps> = ({
@@ -46,21 +49,18 @@ export const ReminderCenterModal: React.FC<ReminderCenterModalProps> = ({
   );
 
   const requestBrowserPermission = async () => {
-    if (typeof Notification !== 'undefined') {
-      try {
-        const perm = await Notification.requestPermission();
-        setPermissionState(perm);
-        if (perm === 'granted') {
-          onUpdateSettings({ browserNotificationsEnabled: true });
-          new Notification('時光方塊課表', {
-            body: '已成功啟用自動提醒！課堂與行程前將為您自動通知。',
-            icon: '/favicon.ico',
-          });
-          playChimeSound('success');
-        }
-      } catch (err) {
-        console.error('Notification permission error:', err);
+    try {
+      const perm = await requestNotificationPermission();
+      setPermissionState(perm);
+      if (perm === 'granted') {
+        onUpdateSettings({ browserNotificationsEnabled: true });
+        await sendAppNotification('時光方塊課表', {
+          body: '已成功啟用自動提醒！課堂與行程前將為您自動通知。',
+        });
+        playChimeSound('success');
       }
+    } catch (err) {
+      console.error('Notification permission error:', err);
     }
   };
 
@@ -151,6 +151,36 @@ export const ReminderCenterModal: React.FC<ReminderCenterModalProps> = ({
                 </button>
               )}
             </div>
+          </div>
+
+          {/* iOS Specific Guidance Banner */}
+          <div
+            className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 ${
+              isDark
+                ? 'bg-indigo-950/40 border-indigo-800/60 text-indigo-200'
+                : 'bg-indigo-50 border-indigo-200 text-indigo-900'
+            }`}
+          >
+            <div className="space-y-0.5 min-w-0">
+              <span className="font-bold text-xs flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
+                <Smartphone className="w-4 h-4 shrink-0" />
+                iOS 系統：今日概覽小工具與鎖定響鈴
+              </span>
+              <p className="text-[11px] opacity-85 leading-tight">
+                iPhone 螢幕關閉時會休眠網頁。同步至 iPhone 內建行事曆，即可 100% 準時響鈴並在今日概覽顯示本週課表！
+              </p>
+            </div>
+            {onOpenIosWidgetModal && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenIosWidgetModal();
+                }}
+                className="shrink-0 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-xs active:scale-95 transition"
+              >
+                小工具教學
+              </button>
+            )}
           </div>
 
           {/* Quick Sound & Vibration Toggles */}

@@ -37,6 +37,8 @@ import { QuickSettingsModal } from './components/QuickSettingsModal';
 import { NotificationToast } from './components/NotificationToast';
 import { FrequentBlocksBanner } from './components/FrequentBlocksBanner';
 import { ManagePinnedBlocksModal } from './components/ManagePinnedBlocksModal';
+import { IosWidgetModal } from './components/IosWidgetModal';
+import { sendAppNotification } from './utils/notification';
 
 export default function App() {
   // Primary States
@@ -62,6 +64,7 @@ export default function App() {
   const [isReminderCenterOpen, setIsReminderCenterOpen] = React.useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = React.useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+  const [isIosWidgetOpen, setIsIosWidgetOpen] = React.useState(false);
 
   // Active Real-time Alert Toast
   const [activeAlert, setActiveAlert] = React.useState<{ item: ScheduleItem; message: string } | null>(null);
@@ -119,19 +122,10 @@ export default function App() {
               triggerVibration([120, 80, 150]);
             }
 
-            if (
-              typeof Notification !== 'undefined' &&
-              Notification.permission === 'granted' &&
-              settings.browserNotificationsEnabled
-            ) {
-              try {
-                new Notification(`提醒：${item.title}`, {
-                  body: `${item.startTime} ${item.location ? `地點：${item.location}` : ''} (${msg})`,
-                  icon: '/favicon.ico',
-                });
-              } catch (e) {
-                // Ignore
-              }
+            if (settings.browserNotificationsEnabled) {
+              sendAppNotification(`提醒：${item.title}`, {
+                body: `${item.startTime} ${item.location ? `地點：${item.location}` : ''} (${msg})`,
+              });
             }
 
             const newNotif: ReminderNotification = {
@@ -300,6 +294,7 @@ export default function App() {
           activePlacementTemplate={activePlacementTemplate}
           onCancelPlacement={() => setActivePlacementTemplate(null)}
           unreadRemindersCount={unreadRemindersCount}
+          onOpenIosWidgetModal={() => setIsIosWidgetOpen(true)}
         />
 
         {/* Main Content Area: Responsive Layout */}
@@ -505,6 +500,14 @@ export default function App() {
           onUpdateSettings={(newSettings) => setSettings((prev) => ({ ...prev, ...newSettings }))}
           notifications={notifications}
           onClearNotifications={() => setNotifications([])}
+          onOpenIosWidgetModal={() => setIsIosWidgetOpen(true)}
+        />
+
+        <IosWidgetModal
+          isOpen={isIosWidgetOpen}
+          onClose={() => setIsIosWidgetOpen(false)}
+          scheduleItems={scheduleItems}
+          darkMode={settings.darkMode}
         />
 
         <AnalyticsModal

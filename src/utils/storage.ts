@@ -450,7 +450,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   browserNotificationsEnabled: false,
   dndMode: false,
   timetableStartHour: 8,
-  timetableEndHour: 18, // 8:00 to 18:00 (matching university schedule)
+  timetableEndHour: 22, // Fixed to 22:00 (8:00 to 22:00)
   showWeekend: false,   // Default 5-day Mon-Fri view so all days fit on phone screen with zero scrolling!
   usePeriodNumbers: false, // Show time only by default as requested!
   phoneFrameMode: false,
@@ -458,10 +458,10 @@ export const DEFAULT_SETTINGS: UserSettings = {
 };
 
 const STORAGE_KEYS = {
-  TEMPLATES: 'timeblock_templates_ntc_v3',
-  SCHEDULE: 'timeblock_schedule_ntc_v3',
-  SETTINGS: 'timeblock_settings_ntc_v3',
-  READ_NOTIFS: 'timeblock_read_notifications_ntc_v3',
+  TEMPLATES: 'timeblock_templates_ntc_v4',
+  SCHEDULE: 'timeblock_schedule_ntc_v4',
+  SETTINGS: 'timeblock_settings_ntc_v4',
+  READ_NOTIFS: 'timeblock_read_notifications_ntc_v4',
 };
 
 export function loadTemplates(): TimeBlockTemplate[] {
@@ -516,9 +516,13 @@ export function saveSchedule(schedule: ScheduleItem[]) {
 
 export function loadSettings(): UserSettings {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.SETTINGS) || localStorage.getItem('timeblock_settings_ntc_v2');
+    const data =
+      localStorage.getItem(STORAGE_KEYS.SETTINGS) ||
+      localStorage.getItem('timeblock_settings_ntc_v3') ||
+      localStorage.getItem('timeblock_settings_ntc_v2');
     if (data) {
-      return { ...DEFAULT_SETTINGS, ...JSON.parse(data) };
+      const parsed = JSON.parse(data);
+      return { ...DEFAULT_SETTINGS, ...parsed, timetableEndHour: 22 };
     }
   } catch (e) {
     console.error('Failed to load settings:', e);
@@ -579,9 +583,14 @@ export function exportToICS(items: ScheduleItem[]): string {
     }
     if (item.reminderEnabled) {
       lines.push('BEGIN:VALARM');
+      lines.push('ACTION:AUDIO');
+      lines.push(`TRIGGER:-PT${item.reminderOffsetMinutes || 10}M`);
+      lines.push('ATTACH;VALUE=URI:Chord');
+      lines.push('END:VALARM');
+      lines.push('BEGIN:VALARM');
       lines.push('ACTION:DISPLAY');
-      lines.push(`DESCRIPTION:提醒: ${item.title}`);
-      lines.push(`TRIGGER:-PT${item.reminderOffsetMinutes}M`);
+      lines.push(`DESCRIPTION:【課前提醒】${item.title}${item.location ? ` @ ${item.location}` : ''}`);
+      lines.push(`TRIGGER:-PT${item.reminderOffsetMinutes || 10}M`);
       lines.push('END:VALARM');
     }
     lines.push('END:VEVENT');
